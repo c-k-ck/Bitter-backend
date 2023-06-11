@@ -2,7 +2,6 @@ require('dotenv').config()
 
 // Requiring express after installing it
 const express = require('express')
-const workoutRoutes = require('./routes/workouts')
 
 // Envoking the function
 const app = express();
