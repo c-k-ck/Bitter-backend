@@ -1,5 +1,3 @@
-//server.js
-
 require('dotenv').config();
 
 // Requiring express after installing it
