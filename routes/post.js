@@ -1,56 +1,45 @@
-require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 
 const postrouter = express.Router();
 
-const Post = require('../model/post');
+mongoose.connect(process.env.MONGO_DB, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+}).then(() => {
+  console.log('Connected to MongoDB');
+}).catch(error => {
+  console.log('MongoDB connection error:', error);
+});
 
-//Setting up a basic route
 postrouter.get('/', async (req, res) => {
   try {
-    await mongoose.connect(process.env.MONGO_DB, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
     const posts = await Post.find({});
     res.json(posts);
   } catch (error) {
     console.log(error);
     res.status(500).send('Internal Server Error');
-  } finally {
-    mongoose.disconnect();
   }
 });
 
 postrouter.post('/', async (req, res) => {
   try {
-    await mongoose.connect(process.env.MONGO_DB, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    const { title, body, rating } = req.body;
+    const { title, description, rating, category } = req.body;
     const newPost = await Post.create({
       title: title,
-      body: body,
+      description: description,
+      category: category,
       rating: rating,
     });
     res.send(newPost);
   } catch (error) {
     console.log(error);
     res.status(500).send('Server Error');
-  } finally {
-    mongoose.disconnect();
   }
 });
 
 postrouter.delete('/:id', async (req, res) => {
   try {
-    await mongoose.connect(process.env.MONGO_DB, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-
     const id = req.params.id;
     const result = await Post.findOneAndDelete({ _id: id });
 
@@ -60,28 +49,21 @@ postrouter.delete('/:id', async (req, res) => {
     }
 
     const postsLeft = await Post.find({});
-    res.send(postsLeft);
+    res.status(204).send(postsLeft);
   } catch (error) {
     console.log(error);
     res.status(500).send('Server Error');
-  } finally {
-    mongoose.disconnect();
   }
 });
 
 postrouter.put('/:id', async (req, res) => {
   try {
-    await mongoose.connect(process.env.MONGO_DB, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-
     const id = req.params.id;
-    const { title, body, rating } = req.body;
+    const { title, description, rating, category } = req.body;
 
     const updatedPost = await Post.findOneAndUpdate(
       { _id: id },
-      { title: title, body: body, rating: rating },
+      { title: title, description: description, rating: rating, category: category },
       { new: true }
     );
 
@@ -95,8 +77,6 @@ postrouter.put('/:id', async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).send('Server Error');
-  } finally {
-    mongoose.disconnect();
   }
 });
 

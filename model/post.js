@@ -3,15 +3,25 @@ mongoose.connect(process.env.MONGO_DB);
 
 const postSchema = new mongoose.Schema({
   title: String,
-  body: String,
-  rating: Number
+  description: String,
+  category: String,
+  rating: Number,
+  likes: {
+    type: Number,
+    default: 0
+  },
+  dislikes: {
+    type: Number,
+    default: 0
+  },
 });
 
 const Post = new mongoose.model("Post", postSchema);
 const testpost = new Post({
   title: "I hate the new Spiderverse",
-  body: "I've watched the new Spiderverse movie, and it was horrible, such a boring movie, would not recommend",
-  rating: 1
+  description: "I've watched the new Spiderverse movie, and it was horrible, such a boring movie, would not recommend",
+  category: "Movie",
+  rating: 1,
 });
 
 mongoose.connection.on('error', (error) => {
