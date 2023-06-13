@@ -9,7 +9,11 @@ const postSchema = new mongoose.Schema({
   likes: {
     type: Number,
     default: 0
-  }
+  },
+  dislikes: {
+    type: Number,
+    default: 0
+  },
 });
 
 const Post = new mongoose.model("Post", postSchema);
