@@ -8,9 +8,16 @@ const cors = require('cors');
 //Importing the routes we have
 const postRoutes = require('./routes/post');
 const userRoutes = require('./routes/user');
+
+//Importing jwt middleware
+const { verifyJwt, getUserInfo } = require('./authentication');
+
 //Middleware
 app.use(express.json());
 app.use(cors());
+app.use(verifyJwt);
+app.use(getUserInfo);
+
 // Setting up the Routes
 app.use('/post', postRoutes)
 app.use('/user', userRoutes)
