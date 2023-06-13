@@ -59,11 +59,11 @@ postrouter.delete('/:id', async (req, res) => {
 postrouter.put('/:id', async (req, res) => {
   try {
     const id = req.params.id;
-    const { title, body, rating } = req.body;
+    const { title, description, rating, category } = req.body;
 
     const updatedPost = await Post.findOneAndUpdate(
       { _id: id },
-      { title: title, body: body, rating: rating },
+      { title: title, description: description, rating: rating, category: category },
       { new: true }
     );
 
