@@ -155,8 +155,8 @@ postrouter.post('/:id/like', async (req, res) => {
       post.likes += 1;
     }
 
-    await user.save(); // Save the updated user document
-    await post.save(); // Save the updated post document
+    await user.save();
+    await post.save(); 
 
     res.json({ liked: !liked, likesCount: post.likes }); // Return the updated liked status and the current like count of the post
   } catch (error) {
