@@ -34,6 +34,13 @@ userrouter.post('/user', async (req, res) => {
         await connect();
         const { name, email } = req.user; // retreive name and email from from auth0 JWT
         const { username, hometown, age, bio } = req.body;// retrieve remaining feilds from user input
+
+        // Check if the user already exists
+        const existingUser = await User.findOne({ email: email });
+        if (existingUser) {
+            return res.status(409).json({ error: 'User already exists' });
+        }
+
         const user = new User({
             name: name,
             email: email,
