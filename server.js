@@ -17,7 +17,7 @@ const mongoose = require('mongoose');
 const postRoutes = require('./routes/post');
 const userRoutes = require('./routes/user');
 
-//Importing jwt middleware
+//Importing authentication middleware
 const { getUserInfo } = require('./middleware/authentication');
 
 //Middleware

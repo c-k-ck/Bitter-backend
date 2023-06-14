@@ -1,7 +1,7 @@
 require('dotenv').config();
 console.log(process.env.LocalMONGO_DB)
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/Bitter');
+mongoose.connect(process.env.MONGO_DB);
 
 //added user id to schema and added required properties to ensure userID and other required feilds are provided when creating a new post
 const postSchema = new mongoose.Schema({

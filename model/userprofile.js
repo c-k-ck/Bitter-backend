@@ -2,7 +2,7 @@
 require('dotenv').config();
 console.log(process.env.LocalMONGO_DB)
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/Bitter');
+mongoose.connect(process.env.MONGO_DB);
 
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
@@ -21,7 +21,7 @@ const testUser = new User({
     email: 'ms.ruby@gmail.com',
     username: 'msruby',
     hometown: 'Memphis',
-    age: 45,
+    age: 22,
     bio: 'Ms. Ruby sings the blues so you don\'t have to',
 });
 
