@@ -1,5 +1,6 @@
 require('dotenv').config();
 
+
 // Requiring express after installing it
 const express = require('express');
 
@@ -16,10 +17,13 @@ const mongoose = require('mongoose');
 const postRoutes = require('./routes/post');
 const userRoutes = require('./routes/user');
 
+//Importing authentication middleware
+const { getUserInfo } = require('./middleware/authentication');
 
 //Middleware
 app.use(express.json());
 app.use(cors());
+app.use(getUserInfo);
 
 // Setting up the Routes
 app.use('/post', postRoutes)
