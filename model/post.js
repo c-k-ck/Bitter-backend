@@ -6,7 +6,7 @@ mongoose.connect(process.env.MONGO_DB);
 //added user id to schema and added required properties to ensure userID and other required feilds are provided when creating a new post
 const postSchema = new mongoose.Schema({
 
-  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+ email:{type: String, required: true},
   title: { type: String, required: true },
   description: { type: String, required: true },
   rating: { type: Number, required: true },

@@ -7,31 +7,35 @@ const userrouter = express.Router();
 const User = require('../model/userprofile')
 
 // Connect to MongoDB
-const connect = async () => {
-    await mongoose.connect(process.env.MONGO_DB, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    });
-};
+mongoose.connect(process.env.MONGO_DB, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+}).then(() => {
+    console.log('Connected to MongoDB');
+    
+}).catch((error) => {
+    console.error('Error connecting to MongoDB:', error);
+    process.exit(1);
+});
 
 // Get user profile by ID
-userrouter.get('/user/:id', async (req, res) => {
+userrouter.get('/', async (req, res) => {
+    let email = req.query.email
+    await mongoose.connect(process.env.MONGO_DB)
     try {
-        await connect();
-        const user = await User.findById(req.params.id);
+        const user = await User.findOne({email: email}).exec();
+
         res.json(user);
     } catch (error) {
-        console.log(error);
+        console.log(error.message);
         res.status(500).json({ error: 'Failed to retrieve user profile' });
-    } finally {
-        mongoose.disconnect();
     }
 });
 
 // Create a new user profile
-userrouter.post('/user', async (req, res) => {
+userrouter.post('/', async (req, res) => {
+    await mongoose.connect(process.env.MONGO_DB)
     try {
-        await connect();
         const { name, email } = req.user; // retreive name and email from from auth0 JWT
         const { username, hometown, age, bio } = req.body;// retrieve remaining feilds from user input
 
@@ -59,7 +63,6 @@ userrouter.post('/user', async (req, res) => {
 // Update user profile by ID
 userrouter.put('user/:id', async (req, res) => {
     try {
-        await connect();
         const { hometown, age, bio } = req.body;
         const user = await User.findByIdAndUpdate(req.params.id, {
             hometown,
@@ -75,7 +78,6 @@ userrouter.put('user/:id', async (req, res) => {
 // Delete user profile by ID
 userrouter.delete('/:id', async (req, res) => {
     try {
-        await connect();
         await User.findByIdAndDelete(req.params.id);
         res.json({ message: 'User profile deleted successfully' });
     } catch (error) {
@@ -86,7 +88,6 @@ userrouter.delete('/:id', async (req, res) => {
 // retrieve user's recent posts
 userrouter.get('/:id/recentPosts', async (req, res) => {
     try {
-        await connect();
         const user = await User.findById(req.params.user_id).populate('recentPosts');
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
@@ -100,7 +101,6 @@ userrouter.get('/:id/recentPosts', async (req, res) => {
 // retrieve user's liked posts
 userrouter.get('/:id/likes', async (req, res) => {
     try {
-        await connect();
         const userId = req.params.id;
 
         const user = await User.findById(userId).populate('likes');
@@ -112,8 +112,6 @@ userrouter.get('/:id/likes', async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(500).send('Server Error');
-    } finally {
-        mongoose.disconnect();
     }
 });
 

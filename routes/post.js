@@ -10,6 +10,10 @@ const User = require('../model/userprofile');
 
 postrouter.get('/', async (req, res) => {
   try {
+    await mongoose.connect(process.env.MONGO_DB, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
     const posts = await Post.find({});
     res.json(posts);
   } catch (error) {
@@ -19,16 +23,16 @@ postrouter.get('/', async (req, res) => {
 });
 
 postrouter.post('/', async (req, res) => {
-  try {
+
 
     await mongoose.connect(process.env.MONGO_DB, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    const { user_id, title, description, rating, category} = req.body;
-
+    const {title, description, rating, category} = req.body;
+    let email = req.user.email;
     // added functionality to check if user exists 
-    const user = await User.findById(user_id);
+    const user = await User.findOne({ email: email }).exec();
     if (!user) {
       return res.status(404).json({
         error:
@@ -38,12 +42,10 @@ postrouter.post('/', async (req, res) => {
 
 
     const newPost = await Post.create({
-      user_id: user_id,
+      email: req.user.email,
       title: title,
       description: description,
-
       category: category,
-
       rating: rating,
       category: category,
     });
@@ -57,16 +59,17 @@ postrouter.post('/', async (req, res) => {
     await user.save();
 
     res.send(newPost);
-  } catch (error) {
-    console.log(error);
-    res.status(500).send('Server Error');
-  }
+
 });
 
 postrouter.delete('/:id', async (req, res) => {
   try {
+    await mongoose.connect(process.env.MONGO_DB, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
     const id = req.params.id;
-    const result = await Post.findOneAndDelete({ _id: id });
+    const result = await Post.findOneAndDelete({ email: email });
 
     if (!result) {
       res.status(404).send('No post found with the given id');
@@ -83,12 +86,16 @@ postrouter.delete('/:id', async (req, res) => {
 
 postrouter.put('/:id', async (req, res) => {
   try {
-    const id = req.params.id;
-
+    await mongoose.connect(process.env.MONGO_DB, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    const postId = req.params.id
     const { title, description, rating, category } = req.body;
+    const email = req.user.email
 
     const updatedPost = await Post.findOneAndUpdate(
-      { _id: id },
+       postId,
       { title: title, description: description, rating: rating, category: category },
       { new: true }
     );
@@ -108,38 +115,39 @@ postrouter.put('/:id', async (req, res) => {
 
 
 //like and unlike functionality
-postrouter.post('/:id/like', async (req, res) => {
+postrouter.post('/like', async (req, res) => {
+  let email = req.user.email;
   try {
     await mongoose.connect(process.env.MONGO_DB, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
 
-    const postId = req.params.id;
-    const userId = req.user.id;
+ 
+ 
 
-    const post = await Post.findById(postId); // Find the post by its ID
+    const post = await Post.findOne({email: email}); // Find the post by user email
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
     }
 
-    const user = await User.findById(userId); // Find the user by their ID
+    const user = await User.findOne({email: email}); // Find the user by their ID
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
     // Check if the user has already liked the post
-    const liked = user.likes.includes(postId);
+    const liked = user.likes.includes({email: email});
 
     // remove like if user already liked post
     if (liked) {
-      const index = user.likes.indexOf(postId); // Find the index of the post ID in the user's likes array
+      const index = user.likes.indexOf({email: email}); // Find the index of the post ID in the user's likes array
       user.likes.splice(index, 1);
       post.likes -= 1;
 
       // If the user has not liked the post, add the like
     } else {
-      user.likes.push(postId);
+      user.likes.push({email: email});
       post.likes += 1;
     }
 
@@ -150,36 +158,32 @@ postrouter.post('/:id/like', async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).send('Server Error');
-  } finally {
-    mongoose.disconnect(); // Disconnect from the MongoDB database
   }
 });
 
 //recent posts functionality
-postrouter.get('/recent/:id', async (req, res) => {
-  try {
-    await mongoose.connect(process.env.MONGO_DB, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+// postrouter.get('/recent/:id', async (req, res) => {
+//   try {
+//     await mongoose.connect(process.env.MONGO_DB, {
+//       useNewUrlParser: true,
+//       useUnifiedTopology: true,
+//     });
 
-    const userID = req.params.id
+//     const userID = req.params.id
 
-    const user = await User.findById(userID).populate('recentPosts');
-    if (!user) {
-      return res.status(404).json({error: 'User not found'})
-    }
+//     const user = await User.findById(userID).populate('recentPosts');
+//     if (!user) {
+//       return res.status(404).json({error: 'User not found'})
+//     }
 
-    res,json(user.recentPosts);
+//     res.json(user.recentPosts);
 
-  } catch (error) {
-    console.log(error);
-    res.status(500).send('Internal Server Error');
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).send('Internal Server Error');
     
-  } finally {
-    mongoose.disconnect();
-  }
-});
+//   } 
+// });
 
 
 module.exports = postrouter;

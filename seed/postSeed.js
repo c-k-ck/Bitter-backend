@@ -22,7 +22,7 @@ mongoose.connection.once('open', async () => {
 
     // Create posts
     const post1 = new Post({
-        user_id: users[0]._id,
+        email: 'cfmatthews2@gmail.com',
         title: 'Singing the Blues',
         description: 'I\'m tired of this grandpa!',
         rating: 2,
@@ -30,7 +30,7 @@ mongoose.connection.once('open', async () => {
     });
 
     const post2 = new Post({
-        user_id: users[1]._id,
+        email: 'cfmatthews2@gmail.com',
         title: 'Software Development',
         description: 'I wanted to become a software engineer but I got all my certs through coding bootcamps. Just found out I will never be a software engineer without a four year degree from an acredited univerity. Kinda bummed.',
         rating: 3,
@@ -38,7 +38,7 @@ mongoose.connection.once('open', async () => {
     });
 
     const post3 = new Post({
-        user_id: users[2]._id,
+        email: 'cfmatthews2@gmail.com',
         title: 'Exploring the World',
         description: 'Recently visited some beautiful places and captured breathtaking photos.',
         rating: 4,
@@ -46,7 +46,7 @@ mongoose.connection.once('open', async () => {
     });
 
     const post4 = new Post({
-        user_id: users[3]._id,
+        email: 'cfmatthews2@gmail.com',
         title: 'AT&T 5G',
         description: 'Feeling good today. I just my man 5 attachments. Shoutout to AT&T and their 5G network. Their lighting fast connect allows me to send multiple attachemnts quickly and recieve instant feedback from my boo!',
         rating: 5,

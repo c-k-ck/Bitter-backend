@@ -29,14 +29,14 @@ mongoose.connection.on('error', (error) => {
     console.error('Error connecting to MongoDB:', error);
 });
 
-mongoose.connection.once('open', async () => {
-    console.log('Connected to MongoDB');
+// mongoose.connection.once('open', async () => {
+//     console.log('Connected to MongoDB');
 
-    try {
-        await testUser.save();
-    } catch (error) {
-        console.error("Error creating user:", error)
-    }
-});
+//     try {
+//         await testUser.save();
+//     } catch (error) {
+//         console.error("Error creating user:", error)
+//     }
+// });
 
 module.exports = User;
