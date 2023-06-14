@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 
 const postrouter = express.Router();
 
+const Post = require('../model/post')
+
 mongoose.connect(process.env.MONGO_DB, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
