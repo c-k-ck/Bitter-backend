@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 
 const userrouter = express.Router();
 
-const User = require('..model/userprofile')
+const User = require('../model/userprofile')
 
 // Connect to MongoDB
 const connect = async () => {
