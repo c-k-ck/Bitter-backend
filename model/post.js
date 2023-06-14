@@ -7,7 +7,7 @@ mongoose.connect(process.env.MONGO_DB);
 const postSchema = new mongoose.Schema({
   user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   title: { type: String, required: true },
-  body: { type: String, required: true },
+  description: { type: String, required: true },
   rating: { type: Number, required: true },
   category: {type: String, required: true},
 });
@@ -25,7 +25,7 @@ const newTestPost = async () => {
   const testpost = new Post({
     user_id: userTest._id,
     title: "I hate the new Spiderverse",
-    body: "I've watched the new Spiderverse movie, and it was horrible, such a boring movie, would not recommend",
+    description: "I've watched the new Spiderverse movie, and it was horrible, such a boring movie, would not recommend",
     rating: 1,
     category: "media"
   });

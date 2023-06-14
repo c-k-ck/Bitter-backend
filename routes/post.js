@@ -30,7 +30,7 @@ postrouter.post('/', async (req, res) => {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    const { user_id, title, body, rating, category} = req.body;
+    const { user_id, title, description, rating, category} = req.body;
 
     // added functionality to check if user exists 
     const user = await User.findById(user_id);
@@ -44,7 +44,7 @@ postrouter.post('/', async (req, res) => {
     const newPost = await Post.create({
       user_id: user_id,
       title: title,
-      body: body,
+      description: description,
       rating: rating,
       category: category,
     });
