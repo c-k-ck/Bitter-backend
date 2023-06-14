@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 
 const userrouter = express.Router();
 
-const User = require('..model/userprofile')
+const User = require('../model/userprofile')
 
 // Connect to MongoDB
 const connect = async () => {
@@ -15,7 +15,7 @@ const connect = async () => {
 };
 
 // Get user profile by ID
-userrouter.get('user/:id', async (req, res) => {
+userrouter.get('/user/:id', async (req, res) => {
     try {
         await connect();
         const user = await User.findById(req.params.id);
@@ -33,11 +33,11 @@ userrouter.post('/user', async (req, res) => {
     try {
         await connect();
         const { name, email } = req.user; // retreive name and email from from auth0 JWT
-        const { hometown, age, bio } = req.body;// retrieve remaining feilds from user input
-
+        const { username, hometown, age, bio } = req.body;// retrieve remaining feilds from user input
         const user = new User({
             name: name,
             email: email,
+            username: username,
             hometown: hometown,
             age: age,
             bio: bio,
@@ -52,14 +52,13 @@ userrouter.post('/user', async (req, res) => {
 // Update user profile by ID
 userrouter.put('user/:id', async (req, res) => {
     try {
+        await connect();
         const { hometown, age, bio } = req.body;
-
         const user = await User.findByIdAndUpdate(req.params.id, {
             hometown,
             age,
             bio
         }, { new: true });
-
         res.json(user);
     } catch (error) {
         res.status(500).json({ error: 'Failed to update user profile' });
@@ -69,10 +68,45 @@ userrouter.put('user/:id', async (req, res) => {
 // Delete user profile by ID
 userrouter.delete('/:id', async (req, res) => {
     try {
+        await connect();
         await User.findByIdAndDelete(req.params.id);
         res.json({ message: 'User profile deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: 'Failed to delete user profile' });
+    }
+});
+
+// retrieve user's recent posts
+userrouter.get('/:id/recentPosts', async (req, res) => {
+    try {
+        await connect();
+        const user = await User.findById(req.params.user_id).populate('recentPosts');
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        res.json(user.recentPosts);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to retrieve user\'s recent posts' });
+    }
+});
+
+// retrieve user's liked posts
+userrouter.get('/:id/likes', async (req, res) => {
+    try {
+        await connect();
+        const userId = req.params.id;
+
+        const user = await User.findById(userId).populate('likes');
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json(user.likes);
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Server Error');
+    } finally {
+        mongoose.disconnect();
     }
 });
 

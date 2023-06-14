@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const postrouter = express.Router();
 
 const Post = require('../model/post');
+const User = require('../model/userprofile');
 
 //Setting up a basic route
 postrouter.get('/', async (req, res) => {
@@ -29,12 +30,29 @@ postrouter.post('/', async (req, res) => {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    const { title, body, rating } = req.body;
+    const { user_id, title, body, rating, category} = req.body;
+
+    // added functionality to check if user exists 
+    const user = await User.findById(user_id);
+    if (!user) {
+      return res.status(404).json({
+        error:
+          "User not found"
+      })
+    }
+
     const newPost = await Post.create({
+      user_id: user_id,
       title: title,
       body: body,
       rating: rating,
+      category: category,
     });
+
+    // update recentPosts array in the user object
+    user.recentPosts.push(newPost._id);
+    await user.save();
+
     res.send(newPost);
   } catch (error) {
     console.log(error);
@@ -77,11 +95,11 @@ postrouter.put('/:id', async (req, res) => {
     });
 
     const id = req.params.id;
-    const { title, body, rating } = req.body;
+    const { title, body, rating, category } = req.body;
 
     const updatedPost = await Post.findOneAndUpdate(
       { _id: id },
-      { title: title, body: body, rating: rating },
+      { title: title, body: body, rating: rating, category: category },
       { new: true }
     );
 
@@ -99,5 +117,55 @@ postrouter.put('/:id', async (req, res) => {
     mongoose.disconnect();
   }
 });
+
+
+//like and unlike functionality
+postrouter.post('/:id/like', async (req, res) => {
+  try {
+    await mongoose.connect(process.env.MONGO_DB, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    const postId = req.params.id;
+    const userId = req.user.id;
+
+    const post = await Post.findById(postId); // Find the post by its ID
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    const user = await User.findById(userId); // Find the user by their ID
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Check if the user has already liked the post
+    const liked = user.likes.includes(postId);
+
+    // remove like if user already liked post
+    if (liked) {
+      const index = user.likes.indexOf(postId); // Find the index of the post ID in the user's likes array
+      user.likes.splice(index, 1);
+      post.likes -= 1;
+
+      // If the user has not liked the post, add the like
+    } else {
+      user.likes.push(postId);
+      post.likes += 1;
+    }
+
+    await user.save(); // Save the updated user document
+    await post.save(); // Save the updated post document
+
+    res.json({ liked: !liked, likesCount: post.likes }); // Return the updated liked status and the current like count of the post
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Server Error');
+  } finally {
+    mongoose.disconnect(); // Disconnect from the MongoDB database
+  }
+});
+
 
 module.exports = postrouter;
