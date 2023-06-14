@@ -16,6 +16,7 @@ const mongoose = require('mongoose');
 //Importing the routes we have
 const postRoutes = require('./routes/post');
 const userRoutes = require('./routes/user');
+const profileRoutes = require('./routes/userpost');
 
 //Importing authentication middleware
 const { getUserInfo } = require('./middleware/authentication');
@@ -28,6 +29,7 @@ app.use(getUserInfo);
 // Setting up the Routes
 app.use('/post', postRoutes)
 app.use('/user', userRoutes)
+app.use('/profile', profileRoutes)
 
 
 //Using the next parameter lets us use different middleware,
