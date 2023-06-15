@@ -24,7 +24,7 @@ postrouter.get('/', async (req, res) => {
 
 postrouter.post('/', async (req, res) => {
 
-
+  try {
     await mongoose.connect(process.env.MONGO_DB, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -40,14 +40,14 @@ postrouter.post('/', async (req, res) => {
       })
     }
 
-
+    console.log(req.body);
     const newPost = await Post.create({
-      email: req.user.email,
+      email: email,
       title: title,
       description: description,
       category: category,
       rating: rating,
-      category: category,
+      
     });
 
     // update recentPosts array in the user object
@@ -59,7 +59,10 @@ postrouter.post('/', async (req, res) => {
     await user.save();
 
     res.send(newPost);
-
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Server Error');
+  }
 });
 
 postrouter.delete('/:id', async (req, res) => {
@@ -69,7 +72,7 @@ postrouter.delete('/:id', async (req, res) => {
       useUnifiedTopology: true,
     });
     const id = req.params.id;
-    const result = await Post.findOneAndDelete({ email: email });
+    const result = await Post.findOneAndDelete({ _id: id });
 
     if (!result) {
       res.status(404).send('No post found with the given id');
@@ -95,7 +98,7 @@ postrouter.put('/:id', async (req, res) => {
     const email = req.user.email
 
     const updatedPost = await Post.findOneAndUpdate(
-       postId,
+      { _id: postId, email: email },
       { title: title, description: description, rating: rating, category: category },
       { new: true }
     );
@@ -161,29 +164,7 @@ postrouter.post('/like', async (req, res) => {
   }
 });
 
-//recent posts functionality
-// postrouter.get('/recent/:id', async (req, res) => {
-//   try {
-//     await mongoose.connect(process.env.MONGO_DB, {
-//       useNewUrlParser: true,
-//       useUnifiedTopology: true,
-//     });
 
-//     const userID = req.params.id
-
-//     const user = await User.findById(userID).populate('recentPosts');
-//     if (!user) {
-//       return res.status(404).json({error: 'User not found'})
-//     }
-
-//     res.json(user.recentPosts);
-
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).send('Internal Server Error');
-    
-//   } 
-// });
 
 
 module.exports = postrouter;

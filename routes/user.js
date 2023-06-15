@@ -61,10 +61,11 @@ userrouter.post('/', async (req, res) => {
 });
 
 // Update user profile by ID
-userrouter.put('user/:id', async (req, res) => {
+userrouter.put('/:id', async (req, res) => {
+    console.log(req.params.id)
     try {
         const { hometown, age, bio } = req.body;
-        const user = await User.findByIdAndUpdate(req.params.id, {
+        const user = await User.findByIdAndUpdate( req.params.id, {
             hometown,
             age,
             bio

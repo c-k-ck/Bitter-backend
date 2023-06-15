@@ -6,11 +6,11 @@ mongoose.connect(process.env.MONGO_DB);
 //added user id to schema and added required properties to ensure userID and other required feilds are provided when creating a new post
 const postSchema = new mongoose.Schema({
 
- email:{type: String, required: true},
+  email: { type: String, required: true },
   title: { type: String, required: true },
   description: { type: String, required: true },
   rating: { type: Number, required: true },
-  category: {type: String, required: true},
+  category: { type: String, required: true },
 });
 
 const Post = new mongoose.model("Post", postSchema);
@@ -25,11 +25,11 @@ const newTestPost = async () => {
   console.log(userTest)
 
   const testpost = new Post({
-    user_id: userTest._id,
+    email: userTest.email,
     title: "I hate the new Spiderverse",
     description: "I've watched the new Spiderverse movie, and it was horrible, such a boring movie, would not recommend",
     rating: 1,
-    category: "media"
+    category: "Movies & Entertainment"
   });
 
   try {

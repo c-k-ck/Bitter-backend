@@ -26,7 +26,7 @@ mongoose.connection.once('open', async () => {
         title: 'Singing the Blues',
         description: 'I\'m tired of this grandpa!',
         rating: 2,
-        category: "other"
+        category: "Jobs & Workplaces"
     });
 
     const post2 = new Post({
@@ -34,7 +34,7 @@ mongoose.connection.once('open', async () => {
         title: 'Software Development',
         description: 'I wanted to become a software engineer but I got all my certs through coding bootcamps. Just found out I will never be a software engineer without a four year degree from an acredited univerity. Kinda bummed.',
         rating: 3,
-        category: "education"
+        category: "Education & Learning"
     });
 
     const post3 = new Post({
@@ -42,7 +42,7 @@ mongoose.connection.once('open', async () => {
         title: 'Exploring the World',
         description: 'Recently visited some beautiful places and captured breathtaking photos.',
         rating: 4,
-        category: "personal experience"
+        category: "Travel & Hospitality"
     });
 
     const post4 = new Post({
@@ -50,7 +50,7 @@ mongoose.connection.once('open', async () => {
         title: 'AT&T 5G',
         description: 'Feeling good today. I just my man 5 attachments. Shoutout to AT&T and their 5G network. Their lighting fast connect allows me to send multiple attachemnts quickly and recieve instant feedback from my boo!',
         rating: 5,
-        category: "products and services"
+        category: "Retail & Shopping"
     });
 
     // Save posts to the database
