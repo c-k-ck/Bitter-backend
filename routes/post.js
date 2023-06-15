@@ -1,13 +1,13 @@
-require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 
 const postrouter = express.Router();
 
+
 const Post = require('../model/post');
 const User = require('../model/userprofile');
 
-//Setting up a basic route
+
 postrouter.get('/', async (req, res) => {
   try {
     await mongoose.connect(process.env.MONGO_DB, {
@@ -19,21 +19,20 @@ postrouter.get('/', async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).send('Internal Server Error');
-  } finally {
-    mongoose.disconnect();
   }
 });
 
 postrouter.post('/', async (req, res) => {
+
   try {
     await mongoose.connect(process.env.MONGO_DB, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    const { user_id, title, body, rating, category} = req.body;
-
+    const {title, description, rating, category} = req.body;
+    let email = req.user.email;
     // added functionality to check if user exists 
-    const user = await User.findById(user_id);
+    const user = await User.findOne({ email: email }).exec();
     if (!user) {
       return res.status(404).json({
         error:
@@ -41,12 +40,14 @@ postrouter.post('/', async (req, res) => {
       })
     }
 
+    console.log(req.body);
     const newPost = await Post.create({
-      user_id: user_id,
+      email: email,
       title: title,
-      body: body,
-      rating: rating,
+      description: description,
       category: category,
+      rating: rating,
+      
     });
 
     // update recentPosts array in the user object
@@ -61,8 +62,6 @@ postrouter.post('/', async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).send('Server Error');
-  } finally {
-    mongoose.disconnect();
   }
 });
 
@@ -72,7 +71,6 @@ postrouter.delete('/:id', async (req, res) => {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-
     const id = req.params.id;
     const result = await Post.findOneAndDelete({ _id: id });
 
@@ -82,12 +80,10 @@ postrouter.delete('/:id', async (req, res) => {
     }
 
     const postsLeft = await Post.find({});
-    res.send(postsLeft);
+    res.status(204).send(postsLeft);
   } catch (error) {
     console.log(error);
     res.status(500).send('Server Error');
-  } finally {
-    mongoose.disconnect();
   }
 });
 
@@ -97,13 +93,13 @@ postrouter.put('/:id', async (req, res) => {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-
-    const id = req.params.id;
-    const { title, body, rating, category } = req.body;
+    const postId = req.params.id
+    const { title, description, rating, category } = req.body;
+    const email = req.user.email
 
     const updatedPost = await Post.findOneAndUpdate(
-      { _id: id },
-      { title: title, body: body, rating: rating, category: category },
+      { _id: postId, email: email },
+      { title: title, description: description, rating: rating, category: category },
       { new: true }
     );
 
@@ -117,45 +113,44 @@ postrouter.put('/:id', async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).send('Server Error');
-  } finally {
-    mongoose.disconnect();
   }
 });
 
 
 //like and unlike functionality
-postrouter.post('/:id/like', async (req, res) => {
+postrouter.post('/like', async (req, res) => {
+  let email = req.user.email;
   try {
     await mongoose.connect(process.env.MONGO_DB, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
 
-    const postId = req.params.id;
-    const userId = req.user.id;
+ 
+ 
 
-    const post = await Post.findById(postId); // Find the post by its ID
+    const post = await Post.findOne({email: email}); // Find the post by user email
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
     }
 
-    const user = await User.findById(userId); // Find the user by their ID
+    const user = await User.findOne({email: email}); // Find the user by their ID
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
     // Check if the user has already liked the post
-    const liked = user.likes.includes(postId);
+    const liked = user.likes.includes({email: email});
 
     // remove like if user already liked post
     if (liked) {
-      const index = user.likes.indexOf(postId); // Find the index of the post ID in the user's likes array
+      const index = user.likes.indexOf({email: email}); // Find the index of the post ID in the user's likes array
       user.likes.splice(index, 1);
       post.likes -= 1;
 
       // If the user has not liked the post, add the like
     } else {
-      user.likes.push(postId);
+      user.likes.push({email: email});
       post.likes += 1;
     }
 
@@ -166,36 +161,11 @@ postrouter.post('/:id/like', async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).send('Server Error');
-  } finally {
-    mongoose.disconnect(); // Disconnect from the MongoDB database
   }
 });
 
-//recent posts functionality
-postrouter.get('/recent/:id', async (req, res) => {
-  try {
-    await mongoose.connect(process.env.MONGO_DB, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
 
-    const userID = req.params.id
-
-    const user = await User.findById(userID).populate('recentPosts');
-    if (!user) {
-      return res.status(404).json({error: 'User not found'})
-    }
-
-    res,json(user.recentPosts);
-
-  } catch (error) {
-    console.log(error);
-    res.status(500).send('Internal Server Error');
-    
-  } finally {
-    mongoose.disconnect();
-  }
-});
 
 
 module.exports = postrouter;
+
